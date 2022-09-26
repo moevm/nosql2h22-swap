@@ -1,0 +1,24 @@
+version: '3.9'
+ 
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+    volumes:
+     - mongo_volume:/data/db
+ 
+
+  swap:
+    build: .
+    container_name: swap
+    command: python /usr/src/swap/manage.py runserver 0.0.0.0:49088
+    ports:
+      - 49088:49088
+    depends_on:
+      - mongo
+
+volumes:
+   mongo_volume:
