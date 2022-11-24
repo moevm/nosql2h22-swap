@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css?family=Island+Moments&display=swap');
+
+
+.navbar-nav .nav-link:hover {
+    color: rgb(191, 120, 163) !important;
+}
+
+
+.card a {
+    text-decoration: none;
+    color: black;
+}
+
+.footer-text {
+    margin: auto auto;
+}
+
+.card img {
+    height: 200px;
+}
+
+.card {
+    background: rgb(204, 184, 196);
+
+}
+
+.card:hover {
+    background: rgb(204, 184, 196);
+    box-shadow: 7px 5px 5px red;
+    box-shadow: -8px -8px 5px -5px rgba(108, 64, 122, 0.6);
+}
+
+
+
+section {
+    background: rgb(232, 213, 218);
+    min-height: 100vh !important;
+    min-width: 100vw !important;
+}
+
+
+footer {
+
+    background: rgb(204, 184, 196);
+
+}
+
+.footer-img {
+    width: 60px;
+    height: 60px;
+}
+
+input[type="search"] {
+    background-color: #DDDECF;
+    border: none;
+}
+
+.page-link {
+    color: #1D8044;
+    background: none;
+    border: none;
+}
+
+.page-link:hover {
+    background-color: #A591AF;
+}
+
+.page-link:onclick {
+    background-color: #77C3AC;
+    border: none;
+}
+
+
+.reg-button {
+    text-decoration: none;
+    color: rgb(227, 202, 208);
+    border-color: rgb(227, 202, 208);
+    border-style: solid;
+    border-width: 0.5px;
+    padding: 0.5em;
+
+}
+
+.reg-button:hover {
+    color: rgb(191, 120, 163);
+    border-color: rgb(191, 120, 163);
+}
+
+.pagination {
+
+    color: #D7DABB;
+}
+
+
+
+
