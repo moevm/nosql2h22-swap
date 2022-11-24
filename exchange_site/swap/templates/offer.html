@@ -1,0 +1,46 @@
+{% extends 'base.html'%}
+{% load static %}
+
+{% block title %}
+hello
+{% endblock %}
+
+{% block content %}
+<section class="pb-3 hello">
+  <div class="container-fluid ">
+    <div class="row p-3">
+      <div class="col-lg-5 m-4">
+        <img src="{% static '/icon/offer_default.jpg' %}" class="card-img-top" alt="card text">
+      </div>
+      <div class="col-lg-6 col-md-12 mt-4">
+        <div class="row my-3">
+          <div class="col">
+            <div class="container-fluid">
+              <div class="row ">
+                <div class="col-lg-12 col-md-12">
+                  <div class="row">
+                    <p>Описание: </p>
+                    <p>Дата создания: </p>
+                    <p>Дата редактрирования: </p>
+                    <p>Вес: </p>
+                    <p>Габариты:</p>
+                    <p>Город:  </p>
+                    <p>Категория:  </p>
+                    <p>Просмотры:  </p>
+                    <p>Состояние: </p>
+                    <a class="tournament-link" href="#">Редактировать</a>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-7"></div>
+    </div>
+  </div>
+
+</section>
+{% endblock %}
+
