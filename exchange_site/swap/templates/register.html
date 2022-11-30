@@ -1,0 +1,28 @@
+{% extends 'base.html'%}
+{% load static %}
+
+{% block title %}
+Register
+{% endblock %}
+
+{% block content %}
+<section class="pb-3">
+    <div class="container-fluid ">
+        <div class="row ">
+            <div class="col-lg-2"></div>
+            <div class="col-lg-8 col-md-12">
+              <form enctype="multipart/form-data" method="post">
+                  {% csrf_token %}
+                  {{ form.non_form_errors }}
+                  {{form.as_p}}
+                  <div class="mt-3 mb-5">
+                      <button type="submit" class="px-5 btn" style="color: rgb(191, 120, 163); border-style: solid; border-width: 0.5px; border-color: rgb(191, 120, 163);">Зарегестрироваться</button>
+                  </div>
+              </form>
+            </div>
+            <div class="col-lg-2"></div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
