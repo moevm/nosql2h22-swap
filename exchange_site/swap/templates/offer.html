@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-hello
+{{offer.title}}
 {% endblock %}
 
 {% block content %}
@@ -10,7 +10,7 @@ hello
   <div class="container-fluid ">
     <div class="row p-3">
       <div class="col-lg-5 m-4">
-        <img src="{% static '/icon/offer_default.jpg' %}" class="card-img-top" alt="card text">
+        <img src="{{ offer.photo }}" class="card-img-top" alt="card text">
       </div>
       <div class="col-lg-6 col-md-12 mt-4">
         <div class="row my-3">
@@ -26,10 +26,11 @@ hello
                     <p>Габариты:</p>
                     <p>Город:  </p>
                     <p>Категория:  </p>
-                    <p>Просмотры:  </p>
                     <p>Состояние: </p>
-                    <a class="tournament-link" href="#">Редактировать</a>
-
+                    <p>Просмотры:  </p>
+                    <p>{{offer}}</p>
+                    <p>{{offer.author}}</p>
+                    <p>{{id}}</p>
                   </div>
                 </div>
               </div>
