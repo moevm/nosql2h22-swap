@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
-
+from django.contrib.auth import login
+from django.contrib.auth.models import User
+from django.contrib.auth.views import LogoutView
 import pymongo
 from bson.json_util import dumps, loads
 import json
@@ -13,7 +15,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, FormView, TemplateView, View
 from pymongo import TEXT
 
-from .forms import ImportOfferFromJSONForm, OfferForm
+from .forms import ImportOfferFromJSONForm, OfferForm, LoginForm, RegisterForm
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,6 +26,8 @@ dbname = client['swap_db']
 # Получаем коллекцию(аналог таблицы)
 collection = dbname['swap_collection']
 
+users_collection = dbname['users_collection']
+users_collection.create_index([('email', pymongo.ASCENDING)], unique=True)
 
 def index(request):
 
@@ -115,3 +119,31 @@ class ImportOfferFromJSONView(View):
         print(offer, flush=True)
         offer_id = collection.insert_one(offer).inserted_id
         return redirect(reverse_lazy('offer', kwargs={'slug':offer_id}))
+    
+    
+class Login(FormView):
+    template_name = "add_offer.html"
+    form_class = LoginForm
+
+    def form_valid(self, form):
+        if users_collection.find_one({"email": form.cleaned_data.get('email'), 'password': form.cleaned_data.get('password')}):
+            login(self.request, User.objects.create_user('user', form.cleaned_data.get('email'), form.cleaned_data.get('password')))
+        return redirect(reverse_lazy('home'))
+
+
+class UserLogout(LogoutView):
+    next_page = 'home'
+
+
+class Register(FormView):
+    template_name = "register.html"
+    form_class = RegisterForm
+
+    def form_valid(self, form):
+        users_collection.insert_one({'email': form.cleaned_data.get('email'),
+                                     'password': form.cleaned_data.get('password'),
+                                     'full_name': form.cleaned_data.get('full_name')})
+        login(self.request, User.objects.create_user(form.cleaned_data.get('full_name'),
+                                                     form.cleaned_data.get('email'),
+                                                     form.cleaned_data.get('password')))
+        return redirect(reverse_lazy('home'))
