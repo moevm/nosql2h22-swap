@@ -13,3 +13,5 @@ class OfferForm(forms.Form):
     # city = forms.CharField(label="Город", widget=forms.TextInput(attrs={"class": "form-control"}))
     # price = forms.IntegerField(label="Цена", widget=forms.NumberInput(attrs={"class": "form-control"}))
 
+class ImportOfferFromJSONForm(forms.Form):
+    file = forms.FileField(label='Файл')

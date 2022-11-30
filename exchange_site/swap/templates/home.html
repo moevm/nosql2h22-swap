@@ -12,7 +12,6 @@ Swap
         <div class="row ">
             <div class="col-lg-2"></div>
             <div class="col-lg-8 col-md-12">
-
                 <div class="row">
                     {% for offer in offers %}
                     <div class="col-lg-4 col-md-6 mt-4">
@@ -27,8 +26,14 @@ Swap
                         </div>
                     </div>
                     {% endfor %}
+                    <form action="{% url 'export_offers_to_json' %}" method="GET">
+                        <button type="submit" class="px-5 btn" style="margin-top: 10px; color: rgb(191, 120, 163); border-style: solid; border-width: 0.5px; border-color: rgb(191, 120, 163);" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            Export to JSON
+                          </button>
+                    </form>
                 </div>
             </div>
+            
             <div class="col-lg-2"></div>
         </div>
     </div>
@@ -37,6 +42,7 @@ Swap
             <p>{{i}}</p>
         {% endfor %}
     </div>
+    
 </section>
 {% endblock %}
 

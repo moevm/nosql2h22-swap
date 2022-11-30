@@ -1,17 +1,19 @@
 import os
+from pathlib import Path
+
+import pymongo
+from bson.json_util import dumps, loads
+import json
+from bson.objectid import ObjectId
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, CreateView, FormView
-from bson.objectid import ObjectId
-from .forms import OfferForm
-import pymongo
-from  pymongo import TEXT
-from pathlib import Path
+from django.views.generic import CreateView, FormView, TemplateView, View
+from pymongo import TEXT
 
+from .forms import ImportOfferFromJSONForm, OfferForm
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -83,3 +85,33 @@ class AddOfferView(FormView):
         offer_id = collection.insert_one({'title': offer, 'photo': default_storage.url(path)}).inserted_id
         return redirect(reverse_lazy('offer', kwargs={'slug': offer_id}))
 
+
+class OfferJSONExportView(View):
+    def get(self, request, *args, **kwargs):
+        collection = dbname['swap_collection']
+        offer = collection.find_one({"_id": ObjectId(self.kwargs.get("slug"))})
+        json_str = dumps(offer)
+        response = HttpResponse(json_str, content_type='application/json')
+        response['Content-Disposition'] = 'attachment; filename=export.json' 
+        return response
+
+class OffersJSONExportView(View):
+    def get(self, request, *args, **kwargs):
+        collection = dbname['swap_collection']
+        offer = collection.find({})
+        json_str = dumps(offer)
+        response = HttpResponse(json_str, content_type='application/json')
+        response['Content-Disposition'] = 'attachment; filename=export.json' 
+        return response
+
+
+class ImportOfferFromJSONView(View):
+    form_class = ImportOfferFromJSONForm
+
+    def post(self, request, *args, **kwargs):
+        collection = dbname['swap_collection']
+        file = request.FILES.getlist('file')[0]
+        offer = loads(dumps(json.load(file)))
+        print(offer, flush=True)
+        offer_id = collection.insert_one(offer).inserted_id
+        return redirect(reverse_lazy('offer', kwargs={'slug':offer_id}))

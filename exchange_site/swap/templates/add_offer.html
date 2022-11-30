@@ -19,6 +19,29 @@ Add offer
                       <button type="submit" class="px-5 btn" style="color: rgb(191, 120, 163); border-style: solid; border-width: 0.5px; border-color: rgb(191, 120, 163);">Добавить</button>
                   </div>
               </form>
+              <button type="button" class="px-5 btn" style="color: rgb(191, 120, 163); border-style: solid; border-width: 0.5px; border-color: rgb(191, 120, 163);" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Import from JSON
+              </button>
+              <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Импорт</h5>
+                      <button type="button" class="btn-close reg-button" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form enctype="multipart/form-data" action="{% url 'import_offer_from_json' %}" method="post">
+                        {% csrf_token %}
+                        <input name="file" type="file">
+                    <div class="modal-body">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn reg-button" data-bs-dismiss="modal">Закрыть</button>
+                      <button type="submit" class="btn reg-button">Импортировать</button>
+                    </div>
+                </form>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="col-lg-2"></div>
         </div>
