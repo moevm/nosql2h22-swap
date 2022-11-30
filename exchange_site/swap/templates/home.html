@@ -1,8 +1,9 @@
 {% extends 'base.html'%}
+{% load get_id_tag %}
 {% load static %}
 
 {% block title %}
-hello
+Swap
 {% endblock %}
 
 {% block content %}
@@ -13,72 +14,29 @@ hello
             <div class="col-lg-8 col-md-12">
 
                 <div class="row">
+                    {% for offer in offers %}
                     <div class="col-lg-4 col-md-6 mt-4">
                         <div class="card">
 
-                            <a href=""><img src="{% static '/icon/offer_default.jpg' %}" class="card-img-top" alt="card text"> </a>
+                            <a href="{% url 'offer' offer|mongo_id %}"><img src="{% static '/icon/offer_default.jpg' %}" class="card-img-top" alt="card text"> </a>
                             <div class="card-body">
-                                <h5 class="card-title"><a href="#">Название товара</a></h5>
-                                <p class="card-text"><a href="#">Описание товара</a></p>
+                                <h5 class="card-title"><a href="{% url 'offer' offer|mongo_id %}">{{offer.author}}</a></h5>
+                                <p class="card-text"><a href="{% url 'offer' offer|mongo_id %}">{{offer.title|truncatewords_html:20|safe}}</a></p>
+                                <p>{{ offer|mongo_id }}</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-6 mt-4">
-                        <div class="card">
-
-                            <a href=""><img src="{% static '/icon/offer_default.jpg' %}" class="card-img-top" alt="card text"> </a>
-                            <div class="card-body">
-                                <h5 class="card-title"><a href="#">Название товара</a></h5>
-                                <p class="card-text"><a href="#">Описание товара</a></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 mt-4">
-                        <div class="card">
-
-                            <a href=""><img src="{% static '/icon/offer_default.jpg' %}" class="card-img-top" alt="card text"> </a>
-                            <div class="card-body">
-                                <h5 class="card-title"><a href="#">Название товара</a></h5>
-                                <p class="card-text"><a href="#">Описание товара</a></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 mt-4">
-                        <div class="card">
-
-                            <a href=""><img src="{% static '/icon/offer_default.jpg' %}" class="card-img-top" alt="card text"> </a>
-                            <div class="card-body">
-                                <h5 class="card-title"><a href="#">Название товара</a></h5>
-                                <p class="card-text"><a href="#">Описание товара</a></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 mt-4">
-                        <div class="card">
-
-                            <a href=""><img src="{% static '/icon/offer_default.jpg' %}" class="card-img-top" alt="card text"> </a>
-                            <div class="card-body">
-                                <h5 class="card-title"><a href="#">Название товара</a></h5>
-                                <p class="card-text"><a href="#">Описание товара</a></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 mt-4">
-                        <div class="card">
-
-                            <a href=""><img src="{% static '/icon/offer_default.jpg' %}" class="card-img-top" alt="card text"> </a>
-                            <div class="card-body">
-                                <h5 class="card-title"><a href="#">Название товара</a></h5>
-                                <p class="card-text"><a href="#">Описание товара</a></p>
-                            </div>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
             <div class="col-lg-2"></div>
         </div>
     </div>
-
+    <div>
+        {% for i in offers %}
+            <p>{{i}}</p>
+        {% endfor %}
+    </div>
 </section>
 {% endblock %}
 
