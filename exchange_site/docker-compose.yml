@@ -14,7 +14,7 @@ services:
   swap:
     build: .
     container_name: swap
-    command: python /usr/src/swap/manage.py runserver 0.0.0.0:49088
+    command: bash -c "python /usr/src/swap/manage.py migrate && python /usr/src/swap/manage.py runserver 0.0.0.0:49088"
     volumes:
       - ./volumes/media:/usr/src/swap/media
     ports:
