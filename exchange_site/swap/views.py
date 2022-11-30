@@ -94,7 +94,7 @@ class OfferJSONExportView(View):
     def get(self, request, *args, **kwargs):
         collection = dbname['swap_collection']
         offer = collection.find_one({"_id": ObjectId(self.kwargs.get("slug"))})
-        json_str = dumps(offer)
+        json_str = dumps(offer, indent=4)
         response = HttpResponse(json_str, content_type='application/json')
         response['Content-Disposition'] = 'attachment; filename=export.json' 
         return response
@@ -103,7 +103,7 @@ class OffersJSONExportView(View):
     def get(self, request, *args, **kwargs):
         collection = dbname['swap_collection']
         offer = collection.find({})
-        json_str = dumps(offer)
+        json_str = dumps(offer, indent=4)
         response = HttpResponse(json_str, content_type='application/json')
         response['Content-Disposition'] = 'attachment; filename=export.json' 
         return response
@@ -122,7 +122,7 @@ class ImportOfferFromJSONView(View):
     
     
 class Login(FormView):
-    template_name = "add_offer.html"
+    template_name = "login.html"
     form_class = LoginForm
 
     def form_valid(self, form):
