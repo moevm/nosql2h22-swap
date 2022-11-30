@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import HomeView, OfferView, AddOfferView, Search, index, OfferJSONExportView, ImportOfferFromJSONView, OffersJSONExportView
+from .views import HomeView, OfferView, AddOfferView, Search, index, OfferJSONExportView, ImportOfferFromJSONView, OffersJSONExportView, Login, UserLogout, Register
 
 
 urlpatterns = [
@@ -11,5 +11,8 @@ urlpatterns = [
     path('search/', Search.as_view(), name='search'),
     path('export_offers_to_json', OffersJSONExportView.as_view(), name='export_offers_to_json'),
     path('offer/<str:slug>/', OfferView.as_view(), name='offer'),
-    path('offer/<str:slug>/export', OfferJSONExportView.as_view(), name='export_offer')
+    path('offer/<str:slug>/export', OfferJSONExportView.as_view(), name='export_offer'),
+    path('login', Login.as_view(), name='login'),
+    path('logout', UserLogout.as_view(), name='logout'),
+    path('register', Register.as_view(), name='register'),
 ]
