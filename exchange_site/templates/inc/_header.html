@@ -24,12 +24,12 @@
         {% if user.is_authenticated %}
         <div class="m-2 me-4 ">
           <a class="reg-button" href="{% url 'add_offer' %}">Добавить</a>
-          <a class="reg-button" href="#" style="border: none">Выйти</a>
+          <a class="reg-button" href="{%url 'logout' %}" style="border: none">Выйти</a>
         </div>
         {% else %}
         <div class="m-2 me-4 ">
-          <a class="reg-button" href="#" >Вход</a>
-          <a class="reg-button" href="#" style="border: none">Регистрация</a>
+          <a class="reg-button" href="{% url 'login' %}" >Вход</a>
+          <a class="reg-button" href="{% url 'register' %}" style="border: none">Регистрация</a>
         </div>
         {% endif %}
       </div>
