@@ -15,3 +15,13 @@ class OfferForm(forms.Form):
 
 class ImportOfferFromJSONForm(forms.Form):
     file = forms.FileField(label='Файл')
+    
+class LoginForm(forms.Form):
+    email = forms.EmailField(label="Email", widget=forms.EmailInput(attrs={"class": "form-control"}))
+    password = forms.CharField(label="Пороль", widget=forms.PasswordInput(attrs={"class": "form-control"}))
+
+
+class RegisterForm(forms.Form):
+    email = forms.EmailField(label="Email", widget=forms.EmailInput(attrs={"class": "form-control"}))
+    password = forms.CharField(label="Пороль", widget=forms.PasswordInput(attrs={"class": "form-control"}))
+    full_name = forms.CharField(label="ФИО", widget=forms.TextInput(attrs={"class": "form-control"}))
