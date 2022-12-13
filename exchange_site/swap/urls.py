@@ -1,11 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import HomeView, OfferView, AddOfferView, Search, index, OfferJSONExportView, ImportOfferFromJSONView, OffersJSONExportView, Login, UserLogout, Register
+from .views import HomeView, OfferView, AddOfferView, Search, OfferJSONExportView, ImportOfferFromJSONView, OffersJSONExportView, Login, UserLogout, Register
 
 
 urlpatterns = [
-    path('', index),
-    path('home/', HomeView.as_view(), name='home'),
+    path('', HomeView.as_view(), name='home'),
     path('add_offer/', AddOfferView.as_view(), name='add_offer'),
     path('import_offer_from_json/', ImportOfferFromJSONView.as_view(), name='import_offer_from_json'),
     path('search/', Search.as_view(), name='search'),
