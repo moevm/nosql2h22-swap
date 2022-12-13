@@ -9,8 +9,8 @@ import json
 from bson.objectid import ObjectId
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from django.http import HttpResponse
-from django.shortcuts import redirect
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, FormView, TemplateView, View
 from pymongo import TEXT
@@ -99,6 +99,7 @@ class OfferJSONExportView(View):
         response['Content-Disposition'] = 'attachment; filename=export.json' 
         return response
 
+
 class OffersJSONExportView(View):
     def get(self, request, *args, **kwargs):
         collection = dbname['swap_collection']
@@ -115,10 +116,27 @@ class ImportOfferFromJSONView(View):
     def post(self, request, *args, **kwargs):
         collection = dbname['swap_collection']
         file = request.FILES.getlist('file')[0]
-        offer = loads(dumps(json.load(file)))
+
+        try:
+            offer = loads(dumps(json.loads(file.read())))
+        except json.JSONDecodeError as e:
+            return render(
+                request,
+                template_name='error.html',
+                context={
+                    'error_code': 400, 
+                    'error_message': 'Invalid JSON format'
+                    }
+                )
+
         print(offer, flush=True)
-        offer_id = collection.insert_one(offer).inserted_id
-        return redirect(reverse_lazy('offer', kwargs={'slug':offer_id}))
+
+        if isinstance(offer, list):
+            collection.insert_many(offer)
+            return redirect(reverse_lazy('home'))
+        else:
+            offer_id = collection.insert_one(offer).inserted_id
+            return redirect(reverse_lazy('offer', kwargs={'slug':offer_id}))
     
     
 class Login(FormView):
