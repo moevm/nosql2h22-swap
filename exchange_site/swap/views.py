@@ -29,22 +29,6 @@ collection = dbname['swap_collection']
 users_collection = dbname['users_collection']
 users_collection.create_index([('email', pymongo.ASCENDING)], unique=True)
 
-def index(request):
-
-    message = [{"author": "Mike",
-                  "text": "Another post!",
-                  "title": "some text",
-                  "tags": ["bulk", "insert"],
-                  "date": "11:11:2011"},
-                 {"author": "Eliot",
-                  "title": "MongoDB is fun",
-                  "text": "and pretty easy too!",
-                  "date": "11:11:2011"}]
-
-    collection.insert_many(message)
-
-    return HttpResponse(str(collection.find()))
-
 
 class HomeView(TemplateView):
     template_name = "home.html"
@@ -54,7 +38,6 @@ class HomeView(TemplateView):
         collection = dbname['swap_collection']
         context["offers"] = collection.find()
         return context
-
 
 
 class OfferView(TemplateView):
@@ -72,8 +55,15 @@ class Search(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         collection.create_index([('title', TEXT)], default_language='english')
-        context["offers"] = collection.find({"$text": {"$search": f"{self.request.GET.get('search')}"}})
-        context["text"] = self.request.GET.get('search')
+        # context["offers"] = collection.find({"$text": {"$search": f"{self.request.GET.get('search')}"}})
+        print(self.request.GET.get('category'))
+        if self.request.GET.get('category') == "Категория":
+            context["offers"] = collection.find(
+                {"title": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}})
+        else:
+            context["offers"] = collection.find(
+                {"title": {"$regex":  f".*{self.request.GET.get('search')}.*", "$options": 'i'}, 'category': f"{self.request.GET.get('category')}"})
+        context["text"] = self.request.GET.get('category')
         return context
 
 
@@ -84,9 +74,19 @@ class AddOfferView(FormView):
     def form_valid(self, form):
         img = form.cleaned_data.get('photo')
         path = default_storage.save('tmp/somename.png', ContentFile(img.read()))
-
         offer = form.cleaned_data.get('title')
-        offer_id = collection.insert_one({'title': offer, 'photo': default_storage.url(path)}).inserted_id
+        description = form.cleaned_data.get('description')
+        weight = form.cleaned_data.get('weight')
+        size = form.cleaned_data.get('size')
+        category = form.cleaned_data.get('category')
+        state = form.cleaned_data.get('state')
+        city = form.cleaned_data.get('city')
+        price = form.cleaned_data.get('price')
+        offer_id = collection.insert_one({'title': offer, 'description': description,
+                                          'weight': weight, 'size': size,
+                                          'category': category, 'state': state,
+                                          'city': city, 'price': price,
+                                          'photo': default_storage.url(path)}).inserted_id
         return redirect(reverse_lazy('offer', kwargs={'slug': offer_id}))
 
 
