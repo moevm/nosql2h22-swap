@@ -91,6 +91,23 @@ input[type="search"] {
     color: #D7DABB;
 }
 
+.search-input {
+    width: 440px;
+    margin-right: 0.5rem;
+}
+
+.sel-input {
+    margin-left: 0.5rem;
+    width: 210px;
+}
 
 
+@media (max-width: 1000px){
+    .search-input {
+        width: 100%
+    }
 
+    .sel-input {
+        width: 100%
+    }
+ }
