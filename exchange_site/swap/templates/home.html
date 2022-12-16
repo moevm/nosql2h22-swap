@@ -23,7 +23,8 @@ Swap
                             {% endif %}
                             <div class="card-body">
                                 <h5 class="card-title"><a href="{% url 'offer' offer|mongo_id %}">{{offer.title|truncatewords_html:20|safe}}</a></h5>
-                                <p class="card-text"><a href="{% url 'offer' offer|mongo_id %}">{{ offer.description|truncatewords_html:30|safe }}</a></p>
+                                <p class="card-text"><a href="{% url 'offer' offer|mongo_id %}">{{ offer.description|truncatewords_html:40|safe }}</a></p>
+                                <p class="card-text"><a href="{% url 'offer' offer|mongo_id %}">{{ offer.city|truncatewords_html:20|safe }}</a></p>
                             </div>
                         </div>
                     </div>
