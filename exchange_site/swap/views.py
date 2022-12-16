@@ -14,7 +14,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, FormView, TemplateView, View
 from pymongo import TEXT
-
+import datetime
 from .forms import ImportOfferFromJSONForm, OfferForm, LoginForm, RegisterForm
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,11 +24,75 @@ client = pymongo.MongoClient('mongo', 27017, username='admin', password='admin')
 # Получаем базу данных
 dbname = client['swap_db']
 # Получаем коллекцию(аналог таблицы)
-collection = dbname['swap_collection']
+offers_collection = dbname['swap_collection']
+
+offers = [
+  { "title": "Some title 1",
+        "description": "Some description abc",
+        "weight": 45,
+        "size": 30,
+        "category": "Мебель",
+        "state": "Новое",
+        "city": "Moscow",
+        "price": 450,
+        "created_at": "16-12-2022 20:18",
+        },
+    {"title": "Some title 2",
+     "description": "Some description zxc",
+     "weight": 35,
+     "size": 5,
+     "category": "Мебель",
+     "state": "Хорошее",
+     "city": "Taganrog",
+     "price": 120,
+     "created_at": "16-12-2022 20:18",
+     },
+    {"title": "Some title 3",
+     "description": "Some description qwe",
+     "weight": 77,
+     "size": 51,
+     "category": "Мебель",
+     "state": "Новое",
+     "city": "Moscow",
+     "price": 150,
+     "created_at": "16-12-2022 20:18",
+     },
+    {"title": "Some title 4",
+     "description": "Some description fgh",
+     "weight": 70,
+     "size": 51,
+     "category": "Одежда",
+     "state": "Новое",
+     "city": "Belgorod",
+     "price": 250,
+     "created_at": "16-12-2022 20:18",
+     },
+    {"title": "Some title 5",
+     "description": "Some description opl",
+     "weight": 71,
+     "size": 51,
+     "category": "Одежда",
+     "state": "Хорошее",
+     "city": "Belomorsk",
+     "price": 250,
+     "created_at": "16-12-2022 20:18",
+     },
+    {"title": "Some title 6",
+     "description": "Some description mhg",
+     "weight": 73,
+     "size": 51,
+     "category": "Одежда",
+     "state": "Среднее",
+     "city": "Sarta",
+     "price": 1590,
+     "created_at": "16-12-2022 20:18",
+     },
+]
 
 users_collection = dbname['users_collection']
 users_collection.create_index([('email', pymongo.ASCENDING)], unique=True)
 
+offers_collection.insert_many(offers)
 
 class HomeView(TemplateView):
     template_name = "home.html"
@@ -45,7 +109,7 @@ class OfferView(TemplateView):
 
     def get_context_data(self, ** kwargs):
         context = super().get_context_data(**kwargs)
-        context["offer"] = collection.find_one({"_id": ObjectId(self.kwargs.get("slug"))})
+        context["offer"] = offers_collection.find_one({"_id": ObjectId(self.kwargs.get("slug"))})
         context["id"] = self.kwargs.get("slug")
         return context
 
@@ -54,15 +118,23 @@ class Search(TemplateView):
     template_name = "search.html"
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        collection.create_index([('title', TEXT)], default_language='english')
+        offers_collection.create_index([('title', TEXT)], default_language='english')
         # context["offers"] = collection.find({"$text": {"$search": f"{self.request.GET.get('search')}"}})
         print(self.request.GET.get('category'))
         if self.request.GET.get('category') == "Категория":
-            context["offers"] = collection.find(
-                {"title": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}})
+            # context["offers"] = collection.find(
+            #     {"title": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}})
+            context["offers"] = offers_collection.find({
+               "$or": [{"title": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}},
+                       {"description": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}},
+                       {"city": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}}]})
         else:
-            context["offers"] = collection.find(
-                {"title": {"$regex":  f".*{self.request.GET.get('search')}.*", "$options": 'i'}, 'category': f"{self.request.GET.get('category')}"})
+            # context["offers"] = collection.find(
+            #     {"title": {"$regex":  f".*{self.request.GET.get('search')}.*", "$options": 'i'}, 'category': f"{self.request.GET.get('category')}"})
+            context["offers"] = offers_collection.find({
+                "$or": [{"title": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}, 'category': f"{self.request.GET.get('category')}"},
+                        {"description": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}, 'category': f"{self.request.GET.get('category')}"},
+                        {"city": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}, 'category': f"{self.request.GET.get('category')}"}]})
         context["text"] = self.request.GET.get('category')
         return context
 
@@ -82,10 +154,11 @@ class AddOfferView(FormView):
         state = form.cleaned_data.get('state')
         city = form.cleaned_data.get('city')
         price = form.cleaned_data.get('price')
-        offer_id = collection.insert_one({'title': offer, 'description': description,
+        offer_id = offers_collection.insert_one({'title': offer, 'description': description,
                                           'weight': weight, 'size': size,
                                           'category': category, 'state': state,
                                           'city': city, 'price': price,
+                                          'created_at': datetime.datetime.now().strftime("%d-%m-%Y %H:%M"),
                                           'photo': default_storage.url(path)}).inserted_id
         return redirect(reverse_lazy('offer', kwargs={'slug': offer_id}))
 
