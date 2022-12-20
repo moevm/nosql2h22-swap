@@ -92,13 +92,11 @@ input[type="search"] {
 }
 
 .search-input {
-    width: 440px;
-    margin-right: 0.5rem;
+    width: 150px;
 }
 
 .sel-input {
-    margin-left: 0.5rem;
-    width: 210px;
+    width: 150px;
 }
 
 
