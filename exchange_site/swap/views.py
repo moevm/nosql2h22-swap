@@ -29,62 +29,72 @@ offers_collection = dbname['swap_collection']
 offers = [
   { "title": "Some title 1",
         "description": "Some description abc",
-        "weight": 45,
-        "size": 30,
+        "weight": "45",
+        "size": "30",
         "category": "Мебель",
         "state": "Новое",
         "city": "Moscow",
-        "price": 450,
+        "price": "450",
         "created_at": "16-12-2022 20:18",
         },
     {"title": "Some title 2",
      "description": "Some description zxc",
-     "weight": 35,
-     "size": 5,
+     "weight": "35",
+     "size": "5",
      "category": "Мебель",
      "state": "Хорошее",
      "city": "Taganrog",
-     "price": 120,
+     "price": "120",
      "created_at": "16-12-2022 20:18",
      },
     {"title": "Some title 3",
      "description": "Some description qwe",
-     "weight": 77,
-     "size": 51,
+     "weight": "77",
+     "size": "51",
      "category": "Мебель",
      "state": "Новое",
      "city": "Moscow",
-     "price": 150,
+     "price": "150",
      "created_at": "16-12-2022 20:18",
      },
     {"title": "Some title 4",
      "description": "Some description fgh",
-     "weight": 70,
-     "size": 51,
+     "weight": "70",
+     "size": "51",
      "category": "Одежда",
      "state": "Новое",
      "city": "Belgorod",
-     "price": 250,
+     "price": "250",
      "created_at": "16-12-2022 20:18",
      },
     {"title": "Some title 5",
      "description": "Some description opl",
-     "weight": 71,
-     "size": 51,
+     "weight": "71",
+     "size": "51",
      "category": "Одежда",
      "state": "Хорошее",
      "city": "Belomorsk",
-     "price": 250,
+     "price": "250",
      "created_at": "16-12-2022 20:18",
      },
     {"title": "Some title 6",
      "description": "Some description mhg",
-     "weight": 73,
-     "size": 51,
+     "weight": "73",
+     "size": "51",
      "category": "Одежда",
      "state": "Среднее",
      "city": "Sarta",
-     "price": 1590,
+     "price": "1590",
+     "created_at": "16-12-2022 20:18",
+     },
+    {"title": "Some title 7",
+     "description": "Some description nmg",
+     "weight": "55",
+     "size": "30",
+     "category": "Мебель",
+     "state": "Новое",
+     "city": "Moscow",
+     "price": "450",
      "created_at": "16-12-2022 20:18",
      },
 ]
@@ -119,22 +129,64 @@ class Search(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         offers_collection.create_index([('title', TEXT)], default_language='english')
-        # context["offers"] = collection.find({"$text": {"$search": f"{self.request.GET.get('search')}"}})
         print(self.request.GET.get('category'))
-        if self.request.GET.get('category') == "Категория":
-            # context["offers"] = collection.find(
-            #     {"title": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}})
+        if self.request.GET.get('category') == "Категория" and self.request.GET.get('state') == "Состояние":
             context["offers"] = offers_collection.find({
-               "$or": [{"title": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}},
-                       {"description": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}},
-                       {"city": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}}]})
+               "$and": [{"title": {"$regex": f".*{self.request.GET.get('title')}.*", "$options": 'i'}},
+                       {"description": {"$regex": f".*{self.request.GET.get('description')}.*", "$options": 'i'}},
+                        {"weight": {"$regex": f".*{self.request.GET.get('weight')}.*", "$options": 'i'}},
+                        {"size": {"$regex": f".*{self.request.GET.get('size')}.*", "$options": 'i'}},
+                        {"price": {"$regex": f".*{self.request.GET.get('price')}.*", "$options": 'i'}},
+                       {"city": {"$regex": f".*{self.request.GET.get('city')}.*", "$options": 'i'}}]
+            })
+        elif self.request.GET.get('state') == "Состояние":
+            context["offers"] = offers_collection.find({
+                "$and": [{"title": {"$regex": f".*{self.request.GET.get('title')}.*", "$options": 'i'},
+                         'category': f"{self.request.GET.get('category')}"},
+                        {"description": {"$regex": f".*{self.request.GET.get('description')}.*", "$options": 'i'},
+                         'category': f"{self.request.GET.get('category')}"},
+                        {"weight": {"$regex": f".*{self.request.GET.get('weight')}.*", "$options": 'i'},
+                         'category': f"{self.request.GET.get('category')}"},
+                        {"size": {"$regex": f".*{self.request.GET.get('size')}.*", "$options": 'i'},
+                         'category': f"{self.request.GET.get('category')}"},
+                        {"price": {"$regex": f".*{self.request.GET.get('price')}.*", "$options": 'i'},
+                         'category': f"{self.request.GET.get('category')}"},
+                        {"city": {"$regex": f".*{self.request.GET.get('city')}.*", "$options": 'i'},
+                         'category': f"{self.request.GET.get('category')}"}]})
+        elif self.request.GET.get('category') == "Категория":
+            context["offers"] = offers_collection.find({
+                "$and": [{"title": {"$regex": f".*{self.request.GET.get('title')}.*", "$options": 'i'},
+                         'state': f"{self.request.GET.get('state')}"},
+                        {"description": {"$regex": f".*{self.request.GET.get('description')}.*", "$options": 'i'},
+                         'state': f"{self.request.GET.get('state')}"},
+                        {"weight": {"$regex": f".*{self.request.GET.get('weight')}.*", "$options": 'i'},
+                         'state': f"{self.request.GET.get('state')}"},
+                        {"size": {"$regex": f".*{self.request.GET.get('size')}.*", "$options": 'i'},
+                         'state': f"{self.request.GET.get('state')}"},
+                        {"price": {"$regex": f".*{self.request.GET.get('price')}.*", "$options": 'i'},
+                         'state': f"{self.request.GET.get('state')}"},
+                        {"city": {"$regex": f".*{self.request.GET.get('city')}.*", "$options": 'i'},
+                         'state': f"{self.request.GET.get('state')}"}]})
         else:
-            # context["offers"] = collection.find(
-            #     {"title": {"$regex":  f".*{self.request.GET.get('search')}.*", "$options": 'i'}, 'category': f"{self.request.GET.get('category')}"})
             context["offers"] = offers_collection.find({
-                "$or": [{"title": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}, 'category': f"{self.request.GET.get('category')}"},
-                        {"description": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}, 'category': f"{self.request.GET.get('category')}"},
-                        {"city": {"$regex": f".*{self.request.GET.get('search')}.*", "$options": 'i'}, 'category': f"{self.request.GET.get('category')}"}]})
+                "$and": [{"title": {"$regex": f".*{self.request.GET.get('title')}.*", "$options": 'i'},
+                         'state': f"{self.request.GET.get('state')}",
+                         'category': f"{self.request.GET.get('category')}"},
+                        {"description": {"$regex": f".*{self.request.GET.get('description')}.*", "$options": 'i'},
+                         'state': f"{self.request.GET.get('state')}",
+                         'category': f"{self.request.GET.get('category')}"},
+                        {"weight": {"$regex": f".*{self.request.GET.get('weight')}.*", "$options": 'i'},
+                         'state': f"{self.request.GET.get('state')}",
+                         'category': f"{self.request.GET.get('category')}"},
+                        {"size": {"$regex": f".*{self.request.GET.get('size')}.*", "$options": 'i'},
+                         'state': f"{self.request.GET.get('state')}",
+                         'category': f"{self.request.GET.get('category')}"},
+                        {"price": {"$regex": f".*{self.request.GET.get('price')}.*", "$options": 'i'},
+                         'state': f"{self.request.GET.get('state')}",
+                         'category': f"{self.request.GET.get('category')}"},
+                        {"city": {"$regex": f".*{self.request.GET.get('city')}.*", "$options": 'i'},
+                         'state': f"{self.request.GET.get('state')}",
+                         'category': f"{self.request.GET.get('category')}"}]})
         context["text"] = self.request.GET.get('category')
         return context
 
@@ -148,12 +200,12 @@ class AddOfferView(FormView):
         path = default_storage.save('tmp/somename.png', ContentFile(img.read()))
         offer = form.cleaned_data.get('title')
         description = form.cleaned_data.get('description')
-        weight = form.cleaned_data.get('weight')
-        size = form.cleaned_data.get('size')
+        weight = str(form.cleaned_data.get('weight'))
+        size = str(form.cleaned_data.get('size'))
         category = form.cleaned_data.get('category')
         state = form.cleaned_data.get('state')
         city = form.cleaned_data.get('city')
-        price = form.cleaned_data.get('price')
+        price = str(form.cleaned_data.get('price'))
         offer_id = offers_collection.insert_one({'title': offer, 'description': description,
                                           'weight': weight, 'size': size,
                                           'category': category, 'state': state,
