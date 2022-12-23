@@ -12,7 +12,7 @@ from django.core.files.storage import default_storage
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, FormView, TemplateView, View
+from django.views.generic import CreateView, FormView, TemplateView, View, UpdateView
 from pymongo import TEXT
 import datetime
 from .forms import ImportOfferFromJSONForm, OfferForm, LoginForm, RegisterForm
@@ -36,6 +36,7 @@ offers = [
         "city": "Moscow",
         "price": "450",
         "created_at": "16-12-2022 20:18",
+        "owner": "Bob",
         },
     {"title": "Some title 2",
      "description": "Some description zxc",
@@ -46,6 +47,7 @@ offers = [
      "city": "Taganrog",
      "price": "120",
      "created_at": "16-12-2022 20:18",
+     "owner": "Bob",
      },
     {"title": "Some title 3",
      "description": "Some description qwe",
@@ -56,6 +58,7 @@ offers = [
      "city": "Moscow",
      "price": "150",
      "created_at": "16-12-2022 20:18",
+     "owner": "Bob",
      },
     {"title": "Some title 4",
      "description": "Some description fgh",
@@ -66,6 +69,7 @@ offers = [
      "city": "Belgorod",
      "price": "250",
      "created_at": "16-12-2022 20:18",
+     "owner": "Bob",
      },
     {"title": "Some title 5",
      "description": "Some description opl",
@@ -76,6 +80,7 @@ offers = [
      "city": "Belomorsk",
      "price": "250",
      "created_at": "16-12-2022 20:18",
+     "owner": "Bob",
      },
     {"title": "Some title 6",
      "description": "Some description mhg",
@@ -86,6 +91,7 @@ offers = [
      "city": "Sarta",
      "price": "1590",
      "created_at": "16-12-2022 20:18",
+     "owner": "Bob",
      },
     {"title": "Some title 7",
      "description": "Some description nmg",
@@ -96,6 +102,7 @@ offers = [
      "city": "Moscow",
      "price": "450",
      "created_at": "16-12-2022 20:18",
+     "owner": "Bob",
      },
 ]
 
@@ -120,6 +127,7 @@ class OfferView(TemplateView):
     def get_context_data(self, ** kwargs):
         context = super().get_context_data(**kwargs)
         context["offer"] = offers_collection.find_one({"_id": ObjectId(self.kwargs.get("slug"))})
+        # context["can_write"] = self.request.user.username == context["offer"]
         context["id"] = self.kwargs.get("slug")
         return context
 
@@ -211,8 +219,33 @@ class AddOfferView(FormView):
                                           'category': category, 'state': state,
                                           'city': city, 'price': price,
                                           'created_at': datetime.datetime.now().strftime("%d-%m-%Y %H:%M"),
+                                          'owner': self.request.user.username,
                                           'photo': default_storage.url(path)}).inserted_id
         return redirect(reverse_lazy('offer', kwargs={'slug': offer_id}))
+
+
+class EditOfferView(FormView):
+    template_name = "edit_offer.html"
+    form_class = OfferForm
+
+    def form_valid(self, form):
+        img = form.cleaned_data.get('photo')
+        path = default_storage.save('tmp/somename.png', ContentFile(img.read()))
+        offer = form.cleaned_data.get('title')
+        description = form.cleaned_data.get('description')
+        weight = str(form.cleaned_data.get('weight'))
+        size = str(form.cleaned_data.get('size'))
+        category = form.cleaned_data.get('category')
+        state = form.cleaned_data.get('state')
+        city = form.cleaned_data.get('city')
+        price = str(form.cleaned_data.get('price'))
+        offers_collection.update_one({"_id": ObjectId(self.kwargs.get("slug"))}, {'$set': {'title': offer, 'description': description,
+                                                                                          'weight': weight, 'size': size,
+                                                                                          'category': category, 'state': state,
+                                                                                          'city': city, 'price': price,
+                                                                                          'photo': default_storage.url(path)}})
+
+        return redirect(reverse_lazy('offer', kwargs={'slug': self.kwargs.get("slug")}))
 
 
 class OfferJSONExportView(View):
@@ -270,7 +303,12 @@ class Login(FormView):
 
     def form_valid(self, form):
         if users_collection.find_one({"email": form.cleaned_data.get('email'), 'password': form.cleaned_data.get('password')}):
-            login(self.request, User.objects.create_user('user', form.cleaned_data.get('email'), form.cleaned_data.get('password')))
+            if User.objects.get(email=form.cleaned_data.get('email')):
+                login(self.request, User.objects.get(email=form.cleaned_data.get('email')))
+            else:
+                login(self.request, User.objects.create_user(users_collection.find_one({"email": form.cleaned_data.get('email'), 'password': form.cleaned_data.get('password')}).full_name,
+                                                             form.cleaned_data.get('email'),
+                                                             form.cleaned_data.get('password')))
         return redirect(reverse_lazy('home'))
 
 
@@ -290,3 +328,12 @@ class Register(FormView):
                                                      form.cleaned_data.get('email'),
                                                      form.cleaned_data.get('password')))
         return redirect(reverse_lazy('home'))
+
+
+class UserOffers(TemplateView):
+    template_name = "search.html"
+
+    def get_context_data(self, ** kwargs):
+        context = super().get_context_data(**kwargs)
+        context["offers"] = offers_collection.find({"owner": self.request.user.username})
+        return context
