@@ -7,6 +7,23 @@ Swap
 {% endblock %}
 
 {% block content %}
+<style>
+.pagination a {
+  color: black;
+  float: left;
+  margin: auto;
+  padding: 8px 16px;
+  text-decoration: none;
+  transition: background-color .3s;
+}
+
+.pagination a.active {
+  background-color: lightcoral;
+  color: white;
+}
+.pagination a:hover:not(.active) {background-color: rgb(223, 136, 136);}
+</style>
+
 <section class="pb-3">
     <div class="container-fluid ">
         <div class="row ">
@@ -31,19 +48,15 @@ Swap
                     {% endfor %}
                     <div class="pagination">
                         <span class="step-links">
-                            {% if page_obj.has_previous %}
-                                <a href="?page=1">&laquo; first</a>
-                                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-                            {% endif %}
-                    
-                            <span class="current">
-                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-                            </span>
-                    
-                            {% if page_obj.has_next %}
-                                <a href="?page={{ page_obj.next_page_number }}">next</a>
-                                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-                            {% endif %}
+                            <span class="pages">
+                                {% for page_number in page_obj.paginator.page_range %}
+                                  {% if page_number == page_obj.number %}
+                                  <a href="?page={{page_number}}" class="active">{{page_number}}</a></li>
+                                  {% else %}
+                                    <a href="?page={{page_number}}">{{page_number}}</a></li>
+                                  {% endif %}
+                                {% endfor %}
+                              </span>
                         </span>
                     </div>
                     <form action="{% url 'export_offers_to_json' %}" method="GET">

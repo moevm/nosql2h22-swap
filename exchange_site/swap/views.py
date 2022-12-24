@@ -4,6 +4,7 @@ from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LogoutView
 import pymongo
+import re
 from bson.json_util import dumps, loads
 import json
 from bson.objectid import ObjectId
@@ -120,8 +121,7 @@ class HomeView(TemplateView):
         collection = dbname['swap_collection']
         context["offers"] = collection.find()
         offers = list(collection.find())
-        print(type(offers), flush=True)
-        paginator = Paginator(offers, 10)
+        paginator = Paginator(offers, 9)
         page_number = self.request.GET.get('page', 1)
         page_obj = paginator.get_page(page_number)
         context['page_obj'] = page_obj
@@ -146,7 +146,7 @@ class Search(TemplateView):
         offers_collection.create_index([('title', TEXT)], default_language='english')
         print(self.request.GET.get('category'))
         if self.request.GET.get('category') == "Категория" and self.request.GET.get('state') == "Состояние":
-            context["offers"] = offers_collection.find({
+            offers = offers_collection.find({
                "$and": [{"title": {"$regex": f".*{self.request.GET.get('title')}.*", "$options": 'i'}},
                        {"description": {"$regex": f".*{self.request.GET.get('description')}.*", "$options": 'i'}},
                         {"weight": {"$regex": f".*{self.request.GET.get('weight')}.*", "$options": 'i'}},
@@ -155,7 +155,7 @@ class Search(TemplateView):
                        {"city": {"$regex": f".*{self.request.GET.get('city')}.*", "$options": 'i'}}]
             })
         elif self.request.GET.get('state') == "Состояние":
-            context["offers"] = offers_collection.find({
+            offers = offers_collection.find({
                 "$and": [{"title": {"$regex": f".*{self.request.GET.get('title')}.*", "$options": 'i'},
                          'category': f"{self.request.GET.get('category')}"},
                         {"description": {"$regex": f".*{self.request.GET.get('description')}.*", "$options": 'i'},
@@ -169,7 +169,7 @@ class Search(TemplateView):
                         {"city": {"$regex": f".*{self.request.GET.get('city')}.*", "$options": 'i'},
                          'category': f"{self.request.GET.get('category')}"}]})
         elif self.request.GET.get('category') == "Категория":
-            context["offers"] = offers_collection.find({
+            offers = offers_collection.find({
                 "$and": [{"title": {"$regex": f".*{self.request.GET.get('title')}.*", "$options": 'i'},
                          'state': f"{self.request.GET.get('state')}"},
                         {"description": {"$regex": f".*{self.request.GET.get('description')}.*", "$options": 'i'},
@@ -183,7 +183,7 @@ class Search(TemplateView):
                         {"city": {"$regex": f".*{self.request.GET.get('city')}.*", "$options": 'i'},
                          'state': f"{self.request.GET.get('state')}"}]})
         else:
-            context["offers"] = offers_collection.find({
+            offers = offers_collection.find({
                 "$and": [{"title": {"$regex": f".*{self.request.GET.get('title')}.*", "$options": 'i'},
                          'state': f"{self.request.GET.get('state')}",
                          'category': f"{self.request.GET.get('category')}"},
@@ -202,7 +202,14 @@ class Search(TemplateView):
                         {"city": {"$regex": f".*{self.request.GET.get('city')}.*", "$options": 'i'},
                          'state': f"{self.request.GET.get('state')}",
                          'category': f"{self.request.GET.get('category')}"}]})
+
+        
+        paginator = Paginator(list(offers), 9)
+        page_number = self.request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_number)
+        context["page_obj"] = page_obj
         context["text"] = self.request.GET.get('category')
+        context["full_path"] = re.sub(r"&+page=\d*", "", self.request.get_full_path())
         return context
 
 

@@ -7,6 +7,22 @@ Swap
 {% endblock %}
 
 {% block content %}
+<style>
+.pagination a {
+  color: black;
+  float: left;
+  margin: auto;
+  padding: 8px 16px;
+  text-decoration: none;
+  transition: background-color .3s;
+}
+
+.pagination a.active {
+  background-color: lightcoral;
+  color: white;
+}
+.pagination a:hover:not(.active) {background-color: rgb(223, 136, 136);}
+</style>
 <section class="pb-3">
     <div class="container-fluid ">
         <div class="row ">
@@ -14,7 +30,7 @@ Swap
             <div class="col-lg-8 col-md-12">
 
                 <div class="row">
-                    {% for offer in offers %}
+                    {% for offer in page_obj %}
                     <div class="col-lg-4 col-md-6 mt-4">
                         <div class="card">
                             {% if offer.photo %}
@@ -30,6 +46,19 @@ Swap
                         </div>
                     </div>
                     {% endfor %}
+                    <div class="pagination">
+                        <span class="step-links">
+                            <span class="pages">
+                                {% for page_number in page_obj.paginator.page_range %}
+                                  {% if page_number == page_obj.number %}
+                                  <a href="{{full_path}}&page={{page_number}}" class="active">{{page_number}}</a></li>
+                                  {% else %}
+                                    <a href="{{full_path}}&page={{page_number}}">{{page_number}}</a></li>
+                                  {% endif %}
+                                {% endfor %}
+                              </span>
+                        </span>
+                    </div>
                 </div>
             </div>
             <div class="col-lg-2"></div>
