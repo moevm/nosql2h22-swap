@@ -16,6 +16,7 @@ from django.views.generic import CreateView, FormView, TemplateView, View, Updat
 from pymongo import TEXT
 import datetime
 from .forms import ImportOfferFromJSONForm, OfferForm, LoginForm, RegisterForm
+from django.core.paginator import Paginator
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -118,6 +119,12 @@ class HomeView(TemplateView):
         dbname = client['swap_db']
         collection = dbname['swap_collection']
         context["offers"] = collection.find()
+        offers = list(collection.find())
+        print(type(offers), flush=True)
+        paginator = Paginator(offers, 10)
+        page_number = self.request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_number)
+        context['page_obj'] = page_obj
         return context
 
 
