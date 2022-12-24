@@ -10,10 +10,11 @@ import json
 from bson.objectid import ObjectId
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, FormView, TemplateView, View, UpdateView
+from django.views.generic import CreateView, FormView, TemplateView, View, UpdateView, DeleteView
+from django.views.generic.edit import DeletionMixin
 from pymongo import TEXT
 import datetime
 from .forms import ImportOfferFromJSONForm, OfferForm, LoginForm, RegisterForm, EditOfferForm
@@ -366,3 +367,9 @@ class UserOffers(TemplateView):
         context = super().get_context_data(**kwargs)
         context["offers"] = offers_collection.find({"owner": self.request.user.username})
         return context
+
+
+class DeleteOfferView(View, DeletionMixin):
+    def delete(self, request, *args, **kwargs):
+        offers_collection.delete_one({"_id": ObjectId(self.kwargs.get("slug"))})
+        return redirect(reverse_lazy('home'))
