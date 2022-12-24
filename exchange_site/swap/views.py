@@ -16,7 +16,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, FormView, TemplateView, View, UpdateView
 from pymongo import TEXT
 import datetime
-from .forms import ImportOfferFromJSONForm, OfferForm, LoginForm, RegisterForm
+from .forms import ImportOfferFromJSONForm, OfferForm, LoginForm, RegisterForm, EditOfferForm
 from django.core.paginator import Paginator
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -229,22 +229,27 @@ class AddOfferView(FormView):
         city = form.cleaned_data.get('city')
         price = str(form.cleaned_data.get('price'))
         offer_id = offers_collection.insert_one({'title': offer, 'description': description,
-                                          'weight': weight, 'size': size,
-                                          'category': category, 'state': state,
-                                          'city': city, 'price': price,
-                                          'created_at': datetime.datetime.now().strftime("%d-%m-%Y %H:%M"),
-                                          'owner': self.request.user.username,
-                                          'photo': default_storage.url(path)}).inserted_id
+                                                 'weight': weight, 'size': size,
+                                                 'category': category, 'state': state,
+                                                 'city': city, 'price': price,
+                                                 'created_at': datetime.datetime.now().strftime("%d-%m-%Y %H:%M"),
+                                                 'owner': self.request.user.username,
+                                                 'photo': default_storage.url(path)}).inserted_id
         return redirect(reverse_lazy('offer', kwargs={'slug': offer_id}))
 
-
+#this
 class EditOfferView(FormView):
     template_name = "edit_offer.html"
-    form_class = OfferForm
+    form_class = EditOfferForm
+
+    def get_context_data(self, ** kwargs):
+        context = super().get_context_data(**kwargs)
+        context["offer"] = offers_collection.find_one({"_id": ObjectId(self.kwargs.get("slug"))})
+        # context["can_write"] = self.request.user.username == context["offer"]
+        context["id"] = self.kwargs.get("slug")
+        return context
 
     def form_valid(self, form):
-        img = form.cleaned_data.get('photo')
-        path = default_storage.save('tmp/somename.png', ContentFile(img.read()))
         offer = form.cleaned_data.get('title')
         description = form.cleaned_data.get('description')
         weight = str(form.cleaned_data.get('weight'))
@@ -253,11 +258,21 @@ class EditOfferView(FormView):
         state = form.cleaned_data.get('state')
         city = form.cleaned_data.get('city')
         price = str(form.cleaned_data.get('price'))
-        offers_collection.update_one({"_id": ObjectId(self.kwargs.get("slug"))}, {'$set': {'title': offer, 'description': description,
-                                                                                          'weight': weight, 'size': size,
-                                                                                          'category': category, 'state': state,
-                                                                                          'city': city, 'price': price,
-                                                                                          'photo': default_storage.url(path)}})
+        if form.cleaned_data.get('photo'):
+            img = form.cleaned_data.get('photo')
+            path = default_storage.save('tmp/somename.png', ContentFile(img.read()))
+            offers_collection.update_one({"_id": ObjectId(self.kwargs.get("slug"))}, {'$set': {'title': offer, 'description': description,
+                                                                                              'weight': weight, 'size': size,
+                                                                                              'category': category, 'state': state,
+                                                                                              'city': city, 'price': price,
+                                                                                              'photo': default_storage.url(path)}})
+        else:
+            offers_collection.update_one({"_id": ObjectId(self.kwargs.get("slug"))},
+                                         {'$set': {'title': offer, 'description': description,
+                                                   'weight': weight, 'size': size,
+                                                   'category': category, 'state': state,
+                                                   'city': city, 'price': price,
+                                                   }})
 
         return redirect(reverse_lazy('offer', kwargs={'slug': self.kwargs.get("slug")}))
 
