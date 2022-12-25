@@ -28,6 +28,8 @@ client = pymongo.MongoClient('mongo', 27017, username='admin', password='admin')
 dbname = client['swap_db']
 # Получаем коллекцию(аналог таблицы)
 offers_collection = dbname['swap_collection']
+# Таблица купленного
+selled_offers_collection = dbname['selled_collection']
 
 offers = [
   { "title": "Some title 1",
@@ -288,6 +290,16 @@ class OfferJSONExportView(View):
         return response
 
 
+class BoughtOfferJSONExportView(View):
+    def get(self, request, *args, **kwargs):
+        collection = dbname['selled_collection']
+        offer = collection.find_one({"_id": ObjectId(self.kwargs.get("slug"))})
+        json_str = dumps(offer, indent=4)
+        response = HttpResponse(json_str, content_type='application/json')
+        response['Content-Disposition'] = 'attachment; filename=export.json'
+        return response
+
+
 class OffersJSONExportView(View):
     def get(self, request, *args, **kwargs):
         collection = dbname['swap_collection']
@@ -297,6 +309,25 @@ class OffersJSONExportView(View):
         response['Content-Disposition'] = 'attachment; filename=export.json' 
         return response
 
+
+class MyOffersJSONExportView(View):
+    def get(self, request, *args, **kwargs):
+        collection = dbname['swap_collection']
+        offer = collection.find({"owner": self.request.user.username})
+        json_str = dumps(offer, indent=4)
+        response = HttpResponse(json_str, content_type='application/json')
+        response['Content-Disposition'] = 'attachment; filename=export.json'
+        return response
+
+
+class BoughtOffersJSONExportView(View):
+    def get(self, request, *args, **kwargs):
+        collection = dbname['selled_collection']
+        offer = collection.find({"bought": self.request.user.username})
+        json_str = dumps(offer, indent=4)
+        response = HttpResponse(json_str, content_type='application/json')
+        response['Content-Disposition'] = 'attachment; filename=export.json'
+        return response
 
 class ImportOfferFromJSONView(View):
     form_class = ImportOfferFromJSONForm
@@ -361,7 +392,7 @@ class Register(FormView):
 
 
 class UserOffers(TemplateView):
-    template_name = "search.html"
+    template_name = "my_offers.html"
 
     def get_context_data(self, ** kwargs):
         context = super().get_context_data(**kwargs)
@@ -373,3 +404,41 @@ class DeleteOfferView(View, DeletionMixin):
     def delete(self, request, *args, **kwargs):
         offers_collection.delete_one({"_id": ObjectId(self.kwargs.get("slug"))})
         return redirect(reverse_lazy('home'))
+
+
+class BuyOfferView(View, DeletionMixin):
+    def delete(self, request, *args, **kwargs):
+        add = offers_collection.find_one({"_id": ObjectId(self.kwargs.get("slug"))})
+        add.update({"bought": self.request.user.username})
+        selled_offers_collection.insert_one(add)
+        offers_collection.delete_one({"_id": ObjectId(self.kwargs.get("slug"))})
+        return redirect(reverse_lazy('bought_offer', kwargs={'slug': ObjectId(self.kwargs.get("slug"))}))
+
+class BoughtOffers(TemplateView):
+    template_name = "bought_offers.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["offers"] = selled_offers_collection.find({"bought": self.request.user.username})
+        return context
+
+class MyOfferView(TemplateView):
+    template_name = "offer.html"
+
+    def get_context_data(self, ** kwargs):
+        context = super().get_context_data(**kwargs)
+        context["offer"] = selled_offers_collection.find_one({"_id": ObjectId(self.kwargs.get("slug"))})
+        # context["can_write"] = self.request.user.username == context["offer"]
+        context["id"] = self.kwargs.get("slug")
+        return context
+
+
+class BoughtOfferView(TemplateView):
+    template_name = "bought_offer.html"
+
+    def get_context_data(self, ** kwargs):
+        context = super().get_context_data(**kwargs)
+        context["offer"] = selled_offers_collection.find_one({"_id": ObjectId(self.kwargs.get("slug"))})
+        # context["can_write"] = self.request.user.username == context["offer"]
+        context["id"] = self.kwargs.get("slug")
+        return context
