@@ -44,6 +44,7 @@
       <div class="position-absolute top-0 end-0 pt-2">
         {% if user.is_authenticated %}
         <div class="m-2 me-4 ">
+          <a class="reg-button" href="{% url 'my_bought_offers' %}">Приобретенное</a>
           <a class="reg-button" href="{% url 'user_offers' %}">Выставленное</a>
           <a class="reg-button" href="{% url 'add_offer' %}">Добавить</a>
           <a class="reg-button" href="{%url 'logout' %}" style="border: none">Выйти</a>
