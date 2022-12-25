@@ -99,6 +99,11 @@ input[type="search"] {
     width: 150px;
 }
 
+.my_pag {
+    margin-top: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+}
 
 @media (max-width: 1000px){
     .search-input {
