@@ -1,0 +1,58 @@
+{% extends 'base.html'%}
+{% load static %}
+{% load get_id_tag %}
+
+{% block title %}
+{{offer.title}}
+{% endblock %}
+
+{% block content %}
+<section class="pb-3 hello">
+  <div class="container-fluid ">
+    <div class="row p-3">
+      <div class="col-lg-5 m-4">
+        {% if offer.photo %}
+        <img src="{{offer.photo}}" class="card-img-top" alt="card text">
+        {% else %}
+        <img src="{% static '/icon/offer_default.jpg' %}" class="card-img-top" alt="card text">
+        {% endif %}
+      </div>
+      <div class="col-lg-6 col-md-12 mt-4">
+        <div class="row my-3">
+          <div class="col">
+            <div class="container-fluid">
+              <div class="row ">
+                <div class="col-lg-12 col-md-12">
+                  <div class="row">
+                    <p>Описание: {{offer.description}}</p>
+                    <p>Вес: {{offer.weight}}</p>
+                    <p>Размер: {{offer.size}}</p>
+                    <p>Город: {{offer.city}}</p>
+                    <p>Категория: {{offer.category}}</p>
+                    <p>Состояние: {{offer.state}}</p>
+                    <p>Стоимость: {{offer.price}}</p>
+                    <p>Дата создания: {{offer.created_at}}</p>
+                    <p>Приобретено у {{offer.owner}}</p>
+                    <p>Находиться в пути</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-12 mx-4">
+        <form action="{% url 'bought_export_offer' id %}" method="GET">
+          <button type="submit" class="px-5 btn" style="color: rgb(191, 120, 163); border-style: solid; border-width: 0.5px; border-color: rgb(191, 120, 163);" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Export to JSON
+          </button>
+        </form>
+      </div>
+
+
+    </div> 
+  </div>
+
+</section>
+{% endblock %}
+
